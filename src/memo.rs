@@ -29,11 +29,9 @@ impl Memo {
 
     pub fn open(self) -> io::Result<()> {
         if self.exists() {
-            println!("The file found: {:?}", self);
             Command::new("vim").arg(&self.file_path()).exec();
             Ok(())
         } else {
-            println!("there is no such file: {:?}", self);
             self.create()?;
             self.write(String::from("DAIRY TASK"))?;
             Command::new("vim").arg(&self.file_path()).exec();
