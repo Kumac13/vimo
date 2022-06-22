@@ -1,6 +1,7 @@
+use crate::dir::DirectoryManagement;
 use crate::file::FileManagement;
 use chrono::Local;
-use std::fs::{metadata, read_to_string, File, OpenOptions};
+use std::fs::{create_dir_all, metadata, read_to_string, File, OpenOptions};
 use std::io;
 use std::io::{ErrorKind, Write};
 use std::os::unix::process::CommandExt;
@@ -24,10 +25,18 @@ impl Memo {
     }
 
     pub fn file_path(&self) -> String {
-        format!("{}/{}.md", &self.root_path.display(), &self.title)
+        format!("{}/{}.md", &self.file_directory(), &self.title)
+    }
+
+    pub fn file_directory(&self) -> String {
+        let this_month = Local::today().format("%Y-%m").to_string();
+        format!("{}/{}", &self.root_path.display(), this_month)
     }
 
     pub fn open(self) -> io::Result<()> {
+        if !self.dir_exists() {
+            self.dir_create()?;
+        }
         if self.exists() {
             Command::new("vim").arg(&self.file_path()).exec();
             Ok(())
@@ -42,8 +51,7 @@ impl Memo {
 
 impl FileManagement for Memo {
     fn exists(&self) -> bool {
-        let path = format!("{}/{}.md", &self.root_path.display(), &self.title);
-        metadata(path).is_ok()
+        metadata(&self.file_path()).is_ok()
     }
     fn create(&self) -> io::Result<()> {
         let path = format!("{}/{}.md", &self.root_path.display(), &self.title);
@@ -75,5 +83,15 @@ impl FileManagement for Memo {
         );
         let mut file = File::create(&self.file_path())?;
         file.write_all(title.as_bytes())
+    }
+}
+
+impl DirectoryManagement for Memo {
+    fn dir_exists(&self) -> bool {
+        metadata(&self.file_directory()).is_ok()
+    }
+
+    fn dir_create(&self) -> io::Result<()> {
+        create_dir_all(&self.file_directory())
     }
 }
