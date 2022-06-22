@@ -1,6 +1,7 @@
 use crate::dir::DirectoryManagement;
 use crate::file::FileManagement;
 use chrono::Local;
+use std::env;
 use std::fs::{create_dir_all, metadata, read_to_string, File, OpenOptions};
 use std::io;
 use std::io::{ErrorKind, Write};
@@ -38,6 +39,7 @@ impl Memo {
             self.dir_create()?;
         }
         if self.exists() {
+            env::set_current_dir(&self.root_path)?;
             Command::new("vim").arg(&self.file_path()).exec();
             Ok(())
         } else {
