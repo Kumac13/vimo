@@ -27,8 +27,11 @@ impl Config {
         let _ = &self.write(input);
         Ok(())
     }
-    pub fn set_config_path(self) -> String {
-        self.read().unwrap()
+    pub fn set_config_path(self) -> PathBuf {
+        if !self.exists() {
+            self.set_config_file().unwrap();
+        }
+        PathBuf::from(self.read().unwrap())
     }
 }
 
