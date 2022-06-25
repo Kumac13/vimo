@@ -45,6 +45,7 @@ impl Memo {
         } else {
             self.create()?;
             self.write(String::from("DAIRY TASK"))?;
+            env::set_current_dir(&self.root_path)?;
             Command::new("vim").arg(&self.file_path()).exec();
             Ok(())
         }
@@ -56,7 +57,7 @@ impl FileManagement for Memo {
         metadata(&self.file_path()).is_ok()
     }
     fn create(&self) -> io::Result<()> {
-        let path = format!("{}/{}.md", &self.root_path.display(), &self.title);
+        let path = format!("{}", &self.file_path());
         match OpenOptions::new().create(true).write(true).open(path) {
             Ok(_) => Ok(()),
             Err(e) => Err(e),
