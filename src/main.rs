@@ -14,7 +14,7 @@ fn main() -> anyhow::Result<()> {
     let arg: AppArg = AppArg::parse();
     let file_name_option = arg.name;
 
-    let config_path = Config::new().set_config_path();
+    let config_path = Config::default();
 
     let memo: Memo = Memo::new(config_path, file_name_option);
 

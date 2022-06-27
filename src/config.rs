@@ -7,17 +7,23 @@ use std::io;
 use std::io::{ErrorKind, Write};
 use std::path::PathBuf;
 
+#[derive(Default)]
 pub struct Config {
     path: PathBuf,
 }
 
 impl Config {
-    pub fn new() -> Config {
+    fn new() -> Config {
         Config {
             path: config_path_for().unwrap(),
         }
     }
-    pub fn set_config_file(&self) -> io::Result<()> {
+
+    pub fn default() -> PathBuf {
+        let config = Config::new();
+        config.set_config_path()
+    }
+    fn set_config_file(&self) -> io::Result<()> {
         let theme = ColorfulTheme::default();
 
         let input = Input::with_theme(&theme)
@@ -31,7 +37,8 @@ impl Config {
         if !self.exists() {
             self.set_config_file().unwrap();
         }
-        PathBuf::from(self.read().unwrap())
+        let path = self.read().unwrap();
+        PathBuf::from(path)
     }
 }
 
