@@ -79,11 +79,7 @@ impl FileManagement for Memo {
         Ok(contents)
     }
     fn write(&self, date_format: String) -> io::Result<()> {
-        let title = format!(
-            "# {}: {}\n",
-            date_format,
-            Local::today().format("%Y-%m-%d").to_string()
-        );
+        let title = format!("# {}: {}\n", date_format, &self.title);
         let mut file = File::create(&self.file_path())?;
         file.write_all(title.as_bytes())
     }
