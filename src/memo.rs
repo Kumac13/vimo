@@ -44,7 +44,7 @@ impl Memo {
             Ok(())
         } else {
             self.create()?;
-            self.write(String::from("DAIRY TASK"))?;
+            self.write(String::from(&self.title))?;
             env::set_current_dir(&self.root_path)?;
             Command::new("vim").arg(&self.file_path()).exec();
             Ok(())
@@ -78,8 +78,8 @@ impl FileManagement for Memo {
         }
         Ok(contents)
     }
-    fn write(&self, date_format: String) -> io::Result<()> {
-        let title = format!("# {}: {}\n", date_format, &self.title);
+    fn write(&self, text: String) -> io::Result<()> {
+        let title = format!("# {}", &self.title);
         let mut file = File::create(&self.file_path())?;
         file.write_all(title.as_bytes())
     }
