@@ -73,9 +73,6 @@ impl Memo {
         }
 
         std::fs::write(&path, file_content)?;
-
-        println!("Monologue entry added to: {}", path.display());
-
         Ok(())
     }
 }
