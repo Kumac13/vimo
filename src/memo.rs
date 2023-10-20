@@ -54,7 +54,7 @@ impl Memo {
         let mut file_content = std::fs::read_to_string(&path)?;
 
         let current_time = Local::now().format("%H:%M").to_string();
-        let new_content = format!("\n{} {}", current_time, content);
+        let new_content = format!("\n- {} {}", current_time, content);
 
         let monologue_section = "## Monologue";
         if let Some(index) = file_content.find(monologue_section) {
