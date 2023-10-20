@@ -5,9 +5,7 @@ use std::env;
 use std::fs::{create_dir_all, metadata, read_to_string, File, OpenOptions};
 use std::io;
 use std::io::{ErrorKind, Write};
-use std::os::unix::process::CommandExt;
 use std::path::PathBuf;
-use std::process::Command;
 
 #[derive(Debug)]
 pub struct Memo {
@@ -17,7 +15,7 @@ pub struct Memo {
 
 impl Memo {
     pub fn new(root_path: PathBuf, title: Option<String>) -> Memo {
-        let today = Local::today().format("%Y-%m-%d").to_string();
+        let today = Local::now().date().format("%Y-%m-%d").to_string();
 
         Memo {
             title: title.unwrap_or(today),
@@ -30,7 +28,7 @@ impl Memo {
     }
 
     pub fn file_directory(&self) -> String {
-        let this_month = Local::today().format("%Y-%m").to_string();
+        let this_month = Local::now().date().format("%Y-%m").to_string();
         format!("{}/{}", &self.root_path.display(), this_month)
     }
 
@@ -40,13 +38,13 @@ impl Memo {
         }
         if self.exists() {
             env::set_current_dir(&self.root_path)?;
-            Command::new("vim").arg(&self.file_path()).exec();
+            duct::cmd("vim", vec![&self.file_path()]).run()?;
             Ok(())
         } else {
             self.create()?;
             self.write(String::from(&self.title))?;
             env::set_current_dir(&self.root_path)?;
-            Command::new("vim").arg(&self.file_path()).exec();
+            duct::cmd("vim", vec![&self.file_path()]).run()?;
             Ok(())
         }
     }
