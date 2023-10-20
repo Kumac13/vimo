@@ -23,13 +23,13 @@ impl Memo {
         }
     }
 
-    pub fn file_path(&self) -> String {
-        format!("{}/{}.md", &self.file_directory(), &self.title)
+    pub fn file_path(&self) -> PathBuf {
+        self.file_directory().join(format!("{}.md", &self.title))
     }
 
-    pub fn file_directory(&self) -> String {
+    pub fn file_directory(&self) -> PathBuf {
         let this_month = Local::now().date().format("%Y-%m").to_string();
-        format!("{}/{}", &self.root_path.display(), this_month)
+        self.root_path.join(this_month)
     }
 
     pub fn open(self) -> io::Result<()> {
@@ -38,13 +38,13 @@ impl Memo {
         }
         if self.exists() {
             env::set_current_dir(&self.root_path)?;
-            duct::cmd("vim", vec![&self.file_path()]).run()?;
+            duct::cmd("vim", vec![self.file_path().to_str().unwrap()]).run()?;
             Ok(())
         } else {
             self.create()?;
             self.write(String::from(&self.title))?;
             env::set_current_dir(&self.root_path)?;
-            duct::cmd("vim", vec![&self.file_path()]).run()?;
+            duct::cmd("vim", vec![self.file_path().to_str().unwrap()]).run()?;
             Ok(())
         }
     }
@@ -55,11 +55,11 @@ impl FileManagement for Memo {
         metadata(&self.file_path()).is_ok()
     }
     fn create(&self) -> io::Result<()> {
-        let path = format!("{}", &self.file_path());
-        match OpenOptions::new().create(true).write(true).open(path) {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
-        }
+        OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(self.file_path())?;
+        Ok(())
     }
     fn read(&self) -> io::Result<String> {
         let mut contents = read_to_string(&self.root_path)?;
@@ -78,7 +78,7 @@ impl FileManagement for Memo {
     }
     fn write(&self, text: String) -> io::Result<()> {
         let title = format!("# {}", &self.title);
-        let mut file = File::create(&self.file_path())?;
+        let mut file = File::create(self.file_path())?;
         file.write_all(title.as_bytes())
     }
 }
