@@ -18,7 +18,11 @@ fn main() -> anyhow::Result<()> {
 
     let memo: Memo = Memo::new(config_path, file_name_option);
 
-    memo.open()?;
+    if let Some(content) = arg.monologue {
+        memo.write_monologue(content)?;
+    } else {
+        memo.open()?;
+    }
 
     Ok(())
 }

@@ -48,6 +48,36 @@ impl Memo {
             Ok(())
         }
     }
+
+    pub fn write_monologue(&self, content: String) -> anyhow::Result<()> {
+        let path = self.file_path();
+        let mut file_content = std::fs::read_to_string(&path)?;
+
+        let current_time = Local::now().format("%H:%M").to_string();
+        let new_content = format!("\n{} {}", current_time, content);
+
+        let monologue_section = "## Monologue";
+        if let Some(index) = file_content.find(monologue_section) {
+            // Find the position after '## Monologue' and its following newline
+            let insert_position = index
+                + monologue_section.len()
+                + if file_content.chars().nth(index + monologue_section.len()) == Some('\n') {
+                    1
+                } else {
+                    0
+                };
+            file_content.insert_str(insert_position, &new_content);
+        } else {
+            // If '## Monologue' section is not found, append it to the file with the new content
+            file_content.push_str(&format!("\n{}\n{}", monologue_section, new_content));
+        }
+
+        std::fs::write(&path, file_content)?;
+
+        println!("Monologue entry added to: {}", path.display());
+
+        Ok(())
+    }
 }
 
 impl FileManagement for Memo {
