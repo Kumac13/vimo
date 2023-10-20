@@ -62,7 +62,13 @@ impl FileManagement for Config {
                 io::ErrorKind::NotFound,
                 format!("File is empty: {}", &self.path.display()),
             ));
-        } else if contents.ends_with('\n') {
+        }
+        if contents.ends_with('\n') {
+            contents.pop().ok_or_else(|| {
+                io::Error::new(ErrorKind::Other, "Unable to remove last char from file")
+            })?;
+        }
+        if contents.ends_with('\r') {
             contents.pop().ok_or_else(|| {
                 io::Error::new(ErrorKind::Other, "Unable to remove last char from file")
             })?;
