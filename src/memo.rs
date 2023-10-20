@@ -15,7 +15,7 @@ pub struct Memo {
 
 impl Memo {
     pub fn new(root_path: PathBuf, title: Option<String>) -> Memo {
-        let today = Local::today().format("%Y-%m-%d").to_string();
+        let today = Local::now().date().format("%Y-%m-%d").to_string();
 
         Memo {
             title: title.unwrap_or(today),
@@ -28,7 +28,7 @@ impl Memo {
     }
 
     pub fn file_directory(&self) -> String {
-        let this_month = Local::today().format("%Y-%m").to_string();
+        let this_month = Local::now().date().format("%Y-%m").to_string();
         format!("{}/{}", &self.root_path.display(), this_month)
     }
 
