@@ -5,9 +5,7 @@ use std::env;
 use std::fs::{create_dir_all, metadata, read_to_string, File, OpenOptions};
 use std::io;
 use std::io::{ErrorKind, Write};
-use std::os::unix::process::CommandExt;
 use std::path::PathBuf;
-use std::process::Command;
 
 #[derive(Debug)]
 pub struct Memo {
@@ -40,13 +38,13 @@ impl Memo {
         }
         if self.exists() {
             env::set_current_dir(&self.root_path)?;
-            Command::new("vim").arg(&self.file_path()).exec();
+            duct::cmd("vim", vec![&self.file_path()]).run()?;
             Ok(())
         } else {
             self.create()?;
             self.write(String::from(&self.title))?;
             env::set_current_dir(&self.root_path)?;
-            Command::new("vim").arg(&self.file_path()).exec();
+            duct::cmd("vim", vec![&self.file_path()]).run()?;
             Ok(())
         }
     }
