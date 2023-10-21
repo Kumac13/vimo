@@ -32,24 +32,30 @@ impl Memo {
         self.root_path.join(this_month)
     }
 
-    pub fn open(self) -> io::Result<()> {
+    pub fn ensure_file_exits(&self) -> io::Result<()> {
         if !self.dir_exists() {
             self.dir_create()?;
         }
-        if self.exists() {
-            env::set_current_dir(&self.root_path)?;
-            duct::cmd("vim", vec![self.file_path().to_str().unwrap()]).run()?;
-            Ok(())
-        } else {
+
+        if !self.exists() {
             self.create()?;
             self.write(String::from(&self.title))?;
-            env::set_current_dir(&self.root_path)?;
-            duct::cmd("vim", vec![self.file_path().to_str().unwrap()]).run()?;
-            Ok(())
         }
+
+        Ok(())
+    }
+
+    pub fn open(self) -> io::Result<()> {
+        self.ensure_file_exits()?;
+
+        env::set_current_dir(&self.root_path)?;
+        duct::cmd("vim", vec![self.file_path().to_str().unwrap()]).run()?;
+        Ok(())
     }
 
     pub fn write_monologue(&self, content: String) -> anyhow::Result<()> {
+        self.ensure_file_exits()?;
+
         let path = self.file_path();
         let mut file_content = std::fs::read_to_string(&path)?;
 
